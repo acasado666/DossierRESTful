@@ -1,0 +1,430 @@
+Index: src/main/java/com/pluralsight/client/ActivityClient.java
+===================================================================
+--- src/main/java/com/pluralsight/client/ActivityClient.java	(revision 8400c02b939af552e44c8e3b17b878e0347fcffd)
++++ src/main/java/com/pluralsight/client/ActivityClient.java	(revision 8400c02b939af552e44c8e3b17b878e0347fcffd)
+@@ -1,86 +0,0 @@
+- package com.pluralsight.client;
+-
+-import java.util.List;
+-
+-import javax.ws.rs.client.Client;
+-import javax.ws.rs.client.ClientBuilder;
+-import javax.ws.rs.client.Entity;
+-import javax.ws.rs.client.WebTarget;
+-import javax.ws.rs.core.GenericType;
+-import javax.ws.rs.core.MediaType;
+-import javax.ws.rs.core.Response;
+-
+-import com.pluralsight.model.Activity;
+-
+-public class ActivityClient {
+-
+-	private Client client;
+-
+-	public ActivityClient () {
+-		client = ClientBuilder.newClient();
+-	}
+-	
+-	public void delete(String activityId) {
+-		WebTarget target = client.target("http://localhost:8080/exercise-services/webapi/");
+-		
+-		Response response = target.path("activities/" + activityId).request(MediaType.APPLICATION_JSON).delete();
+-		
+-		if(response.getStatus() != 200) {
+-			throw new RuntimeException(response.getStatus() + ": there was an error on the server.");
+-		}
+-	}
+-	
+-	public Activity get(String id) {
+-		
+-		//http://localhost:8080/exercise-services/webapi/activities/1234
+-		WebTarget target = client.target("http://localhost:8080/exercise-services/webapi/");
+-		
+-		Response response = target.path("activities/" + id).request(MediaType.APPLICATION_JSON).get(Response.class);
+-		
+-		if(response.getStatus() != 200) {
+-			throw new RuntimeException(response.getStatus() + ": there was an error on the server.");
+-		}
+-		
+-		return response.readEntity(Activity.class);
+-	}
+-	
+-	public List<Activity> get () {
+-		WebTarget target = client.target("http://localhost:8080/exercise-services/webapi/");
+-		
+-		List<Activity> response = target.path("activities").request(MediaType.APPLICATION_JSON).get(new GenericType<List<Activity>>() {});
+-		
+-		return response;
+-	}
+-
+-	public Activity create(Activity activity) {
+-		//http://localhost:8080/exercise-services/webapi/activities/activity
+-		WebTarget target = client.target("http://localhost:8080/exercise-services/webapi/");
+-		
+-		Response response = target.path("activities/activity")
+-				.request(MediaType.APPLICATION_JSON)
+-				.post(Entity.entity(activity, MediaType.APPLICATION_JSON));
+-		
+-		if(response.getStatus() != 200) {
+-			throw new RuntimeException(response.getStatus() + ": there was an error on the server.");
+-		}
+-		
+-		return response.readEntity(Activity.class);
+-	}
+-
+-	public Activity update(Activity activity) {
+-		WebTarget target = client.target("http://localhost:8080/exercise-services/webapi/");
+-		
+-		Response response = target.path("activities/" + activity.getId())
+-				.request(MediaType.APPLICATION_JSON)
+-				.put(Entity.entity(activity, MediaType.APPLICATION_JSON));
+-		
+-		if(response.getStatus() != 200) {
+-			throw new RuntimeException(response.getStatus() + ": there was an error on the server.");
+-		}
+-		
+-		return response.readEntity(Activity.class);
+-	}
+-
+-	
+-	
+-}
+Index: src/main/java/com/pluralsight/model/Activity.java
+===================================================================
+--- src/main/java/com/pluralsight/model/Activity.java	(revision 8400c02b939af552e44c8e3b17b878e0347fcffd)
++++ src/main/java/com/pluralsight/model/Activity.java	(revision 8400c02b939af552e44c8e3b17b878e0347fcffd)
+@@ -1,43 +0,0 @@
+-package com.pluralsight.model;
+-
+-import javax.xml.bind.annotation.XmlElement;
+-import javax.xml.bind.annotation.XmlRootElement;
+-
+-@XmlRootElement
+-public class Activity {
+-
+-	private String id;
+-	private String description;
+-	private int duration;
+-	private User user;
+-	
+-	
+-	public User getUser() {
+-		return user;
+-	}
+-	public void setUser(User user) {
+-		this.user = user;
+-	}
+-	public String getId() {
+-		return id;
+-	}
+-	public void setId(String id) {
+-		this.id = id;
+-	}
+-	@XmlElement(name="desc")
+-	public String getDescription() {
+-		return description;
+-	}
+-	public void setDescription(String description) {
+-		this.description = description;
+-	}
+-	public int getDuration() {
+-		return duration;
+-	}
+-	public void setDuration(int duration) {
+-		this.duration = duration;
+-	}
+-	
+-	
+-	
+-}
+Index: src/main/java/com/pluralsight/model/User.java
+===================================================================
+--- src/main/java/com/pluralsight/model/User.java	(revision 8400c02b939af552e44c8e3b17b878e0347fcffd)
++++ src/main/java/com/pluralsight/model/User.java	(revision 8400c02b939af552e44c8e3b17b878e0347fcffd)
+@@ -1,25 +0,0 @@
+-package com.pluralsight.model;
+-
+-import javax.xml.bind.annotation.XmlRootElement;
+-
+-
+-@XmlRootElement
+-public class User {
+-
+-	private String name;
+-	private String id;
+-	
+-	public String getName() {
+-		return name;
+-	}
+-	public void setName(String name) {
+-		this.name = name;
+-	}
+-	public String getId() {
+-		return id;
+-	}
+-	public void setId(String id) {
+-		this.id = id;
+-	}
+-	
+-}
+Index: src/main/java/com/pluralsight/repository/ActivityRepository.java
+===================================================================
+--- src/main/java/com/pluralsight/repository/ActivityRepository.java	(revision 8400c02b939af552e44c8e3b17b878e0347fcffd)
++++ src/main/java/com/pluralsight/repository/ActivityRepository.java	(revision 8400c02b939af552e44c8e3b17b878e0347fcffd)
+@@ -1,19 +0,0 @@
+-package com.pluralsight.repository;
+-
+-import java.util.List;
+-
+-import com.pluralsight.model.Activity;
+-
+-public interface ActivityRepository {
+-
+-	List<Activity> findAllActivities();
+-
+-	Activity findActivity(String activityId);
+-
+-	void create(Activity activity);
+-
+-	Activity update(Activity activity);
+-
+-	void delete(String activityId);
+-
+-}
+\ No newline at end of file
+Index: src/main/java/com/pluralsight/repository/ActivityRepositoryStub.java
+===================================================================
+--- src/main/java/com/pluralsight/repository/ActivityRepositoryStub.java	(revision 8400c02b939af552e44c8e3b17b878e0347fcffd)
++++ src/main/java/com/pluralsight/repository/ActivityRepositoryStub.java	(revision 8400c02b939af552e44c8e3b17b878e0347fcffd)
+@@ -1,75 +0,0 @@
+-package com.pluralsight.repository;
+-
+-import java.util.ArrayList;
+-import java.util.List;
+-
+-import com.pluralsight.model.Activity;
+-import com.pluralsight.model.User;
+-
+-public class ActivityRepositoryStub implements ActivityRepository {
+-
+-	@Override
+-	public void create(Activity activity) {
+-		//should issue a insert statement to the db
+-	}
+-	
+-	@Override
+-	public void delete(String activityId) {
+-		//delete from activity where activityid = ?
+-	}
+-	
+-	@Override
+-	public Activity update(Activity activity) {
+-		//search the database to see if we have an activity with that id already
+-		//select * from Activity where id = ?
+-		//if rs size == 0
+-		//insert into Activity table
+-		//else
+-		//update the Activity
+-		
+-		return activity;
+-	}
+-	
+-	public List<Activity> findAllActivities () {
+-		List<Activity> activities = new ArrayList<Activity>();
+-		
+-		Activity activity1 = new Activity();
+-		
+-		activity1.setDescription("Swimming");
+-		activity1.setDuration(55);
+-		
+-		activities.add(activity1);
+-		
+-		Activity activity2 = new Activity();
+-		
+-		activity2.setDescription("Cycling");
+-		activity2.setDuration(120);
+-		
+-		activities.add(activity2);
+-		
+-		return activities;
+-	}
+-	
+-	@Override
+-	public Activity findActivity(String activityId) {
+-		
+-		if(activityId.equals("7777")) {
+-			return null;
+-		}
+-		
+-		Activity activity1 = new Activity();
+-		
+-		activity1.setId("1234");
+-		activity1.setDescription("Swimming");
+-		activity1.setDuration(55);
+-		
+-		User user = new User();
+-		user.setId("5678");
+-		user.setName("Bryan");
+-		
+-		activity1.setUser(user);
+-		
+-		return activity1;
+-	}
+-	
+-}
+Index: src/main/java/com/pluralsight/ActivityResource.java
+===================================================================
+--- src/main/java/com/pluralsight/ActivityResource.java	(revision 8400c02b939af552e44c8e3b17b878e0347fcffd)
++++ src/main/java/com/pluralsight/ActivityResource.java	(revision 8400c02b939af552e44c8e3b17b878e0347fcffd)
+@@ -1,121 +0,0 @@
+-package com.pluralsight;
+-
+-import java.util.List;
+-
+-import javax.ws.rs.Consumes;
+-import javax.ws.rs.DELETE;
+-import javax.ws.rs.GET;
+-import javax.ws.rs.POST;
+-import javax.ws.rs.PUT;
+-import javax.ws.rs.Path;
+-import javax.ws.rs.PathParam;
+-import javax.ws.rs.Produces;
+-import javax.ws.rs.core.MediaType;
+-import javax.ws.rs.core.MultivaluedMap;
+-import javax.ws.rs.core.Response;
+-import javax.ws.rs.core.Response.Status;
+-
+-import com.pluralsight.model.Activity;
+-import com.pluralsight.model.User;
+-import com.pluralsight.repository.ActivityRepository;
+-import com.pluralsight.repository.ActivityRepositoryStub;
+-
+-@Path("activities") //http:localhost:8080/exercise-services/webapi/activities
+-public class ActivityResource {
+-
+-	private ActivityRepository activityRepository = new ActivityRepositoryStub();
+-	
+-	@DELETE
+-	@Path("{activityId}")
+-	@Consumes(MediaType.APPLICATION_JSON)
+-	@Produces({MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML})
+-	public Response delete (@PathParam ("activityId") String activityId) {
+-		System.out.println(activityId);
+-		
+-		activityRepository.delete(activityId);
+-		
+-		return Response.ok().build();
+-	}
+-	
+-	@PUT
+-	@Path("{activityId}")
+-	@Consumes(MediaType.APPLICATION_JSON)
+-	@Produces({MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML})
+-	public Response update(Activity activity) {
+-		
+-		System.out.println(activity.getId());
+-		
+-		activity = activityRepository.update(activity);
+-		
+-		return Response.ok().entity(activity).build();
+-		
+-	}
+-	
+-	
+-	@POST
+-	@Path("activity")
+-	@Consumes(MediaType.APPLICATION_JSON)
+-	@Produces({MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML})
+-	public Activity createActivity(Activity activity) {
+-		
+-		System.out.println(activity.getDescription());
+-		System.out.println(activity.getDuration());
+-		
+-		activityRepository.create(activity);
+-		
+-		return activity;
+-	}
+-	
+-	@POST
+-	@Path("activity")
+-	@Consumes(MediaType.APPLICATION_FORM_URLENCODED)
+-	@Produces({MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML})
+-	public Activity createActivityParams(MultivaluedMap<String, String> formParams) {
+-		
+-		System.out.println(formParams.getFirst("description"));
+-		System.out.println(formParams.getFirst("duration"));
+-		
+-		Activity activity = new Activity();
+-		activity.setDescription(formParams.getFirst("description"));
+-		activity.setDuration(Integer.parseInt(formParams.getFirst("duration")));
+-		
+-		activityRepository.create(activity);
+-		
+-		return activity;
+-	}
+-	
+-	@GET
+-	@Produces({MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML})
+-	public List<Activity> getAllActivities() {
+-		return activityRepository.findAllActivities();
+-	}
+-	
+-	@GET
+-	@Path("{activityId}") 
+-	@Produces({MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML})
+-	public Response getActivity(@PathParam ("activityId") String activityId) {
+-		if(activityId == null || activityId.length() < 4) {
+-			return Response.status(Status.BAD_REQUEST).build();
+-		}
+-		
+-		Activity activity = activityRepository.findActivity(activityId);
+-		
+-		if(activity == null) {
+-			return Response.status(Status.NOT_FOUND).build();
+-		}
+-		
+-		return Response.ok().entity(activity).build();
+-	}
+-	
+-	@GET
+-	@Produces({MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML})
+-	@Path("{activityId}/user") //http:localhost:8080/exercise-services/webapi/activities/1234/user
+-	public User getActivityUser(@PathParam ("activityId") String activityId) {
+-		
+-		Activity activity = activityRepository.findActivity(activityId);
+-		User user = activity.getUser();
+-		return user;
+-		//return activityRepository.findActivity(activityId).getUser();
+-	}
+-	
+-}
+Index: src/main/java/com/pluralsight/MyResource.java
+===================================================================
+--- src/main/java/com/pluralsight/MyResource.java	(revision 8400c02b939af552e44c8e3b17b878e0347fcffd)
++++ src/main/java/com/pluralsight/MyResource.java	(revision 8400c02b939af552e44c8e3b17b878e0347fcffd)
+@@ -1,25 +0,0 @@
+-package com.pluralsight;
+-
+-import javax.ws.rs.GET;
+-import javax.ws.rs.Path;
+-import javax.ws.rs.Produces;
+-import javax.ws.rs.core.MediaType;
+-
+-/**
+- * Root resource (exposed at "myresource" path)
+- */
+-@Path("myresource")
+-public class MyResource {
+-
+-    /**
+-     * Method handling HTTP GET requests. The returned object will be sent
+-     * to the client as "text/plain" media type.
+-     *
+-     * @return String that will be returned as a text/plain response.
+-     */
+-    @GET
+-    @Produces(MediaType.TEXT_PLAIN)
+-    public String getIt() {
+-        return "Got it!";
+-    }
+-}
